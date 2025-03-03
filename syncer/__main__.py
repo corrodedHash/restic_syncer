@@ -60,7 +60,7 @@ def main() -> None:
     args = parse_args()
     server = SshServer(
         user=args.user,
-        server=args.server,
+        server=args.server_address,
         private_key=args.private_key_path,
         port=args.port,
     )
@@ -77,7 +77,8 @@ def main() -> None:
                     "--password-file",
                     password_dir / "local",
                     "init",
-                ]
+                ],
+                check=True,
             )
         sync_snapshots(
             server,
