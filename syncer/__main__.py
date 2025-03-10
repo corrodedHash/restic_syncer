@@ -1,6 +1,7 @@
 import argparse
 import subprocess
 from pathlib import Path
+import logging
 
 from syncer.snapshot_sync import sync_snapshots
 
@@ -53,6 +54,10 @@ def parse_args():
         "--password-dir", required=True, type=Path, help="Path to password directory"
     )
 
+    parser.add_argument(
+        "-v", "--verbose", action="count", default=0, help="Increase output verbosity"
+    )
+
     return parser.parse_args()
 
 
@@ -67,8 +72,20 @@ def main() -> None:
     password_dir = args.password_dir
     backup_dir = args.backup_dir
     repos = get_repos(server)
+    print(repos)
+    logging.basicConfig()
+
+    logger = logging.getLogger("syncer")
+    logger.setLevel(
+        logging.DEBUG
+        if args.verbose >= 2
+        else (logging.INFO if args.verbose >= 1 else logging.WARNING)
+    )
+
+    logger.info(f"Syncing repositories: [{repos}]")
     for repo in repos:
         if not (backup_dir / repo).exists():
+            logger.info(f"No local copy exists, creating...")
             subprocess.run(
                 [
                     "restic",

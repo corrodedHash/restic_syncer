@@ -1,3 +1,4 @@
+import logging
 import subprocess
 from syncer.snapshot_list import get_local_snapshots, get_remote_snapshots
 from syncer.types import ResticRepo, SshServer
@@ -15,6 +16,9 @@ def sync_snapshots(
         unsynced_remote = [
             snapshot for snapshot in s if snapshot.date > most_recent_local.date
         ]
+    logger = logging.getLogger()
+    logger.info(f"Syncing [{len(unsynced_remote)}] snapshots for {local_repo.path}")
+
     remote_repo_path = f"sftp:{server.user}@{server.server}:{remote_repo.path}"
     subprocess.run(
         [
